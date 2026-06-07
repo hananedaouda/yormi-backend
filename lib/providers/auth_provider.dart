@@ -9,12 +9,33 @@ class AuthProvider extends ChangeNotifier {
 
   UserModel? _user;
   bool _isLoading = false;
+  bool _isCheckingAuth = true;
   String? _errorMessage;
 
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
+  bool get isCheckingAuth => _isCheckingAuth;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _user != null;
+
+  Future<void> checkAuthStatus() async {
+    _isCheckingAuth = true;
+    notifyListeners();
+
+    try {
+      final token = await _storage.read(key: 'token');
+      if (token != null) {
+        final response = await _apiService.get('/auth/me');
+        _user = UserModel.fromJson(response.data['user']);
+      }
+    } catch (e) {
+      await _storage.delete(key: 'token');
+      _user = null;
+    }
+
+    _isCheckingAuth = false;
+    notifyListeners();
+  }
 
   Future<bool> login(String email, String password) async {
     _isLoading = true;
@@ -52,4 +73,4 @@ class AuthProvider extends ChangeNotifier {
     _user = null;
     notifyListeners();
   }
-} 
+}

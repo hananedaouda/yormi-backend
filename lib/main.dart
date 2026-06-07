@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/dashboard/dashboard_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,20 +26,51 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        initialRoute: '/login',
+        home: const AuthWrapper(),
         routes: {
           '/login': (context) => const LoginScreen(),
-          '/dashboard': (context) => Scaffold(
-            backgroundColor: const Color(0xFF1A1F3C),
-            body: Center(
-              child: Text(
-                'Dashboard — Coming Soon 🔥',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-            ),
-          ),
+          '/dashboard': (context) => const DashboardScreen(),
         },
       ),
+    );
+  }
+}
+
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() =>
+      Provider.of<AuthProvider>(context, listen: false).checkAuthStatus()
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+      builder: (context, auth, child) {
+        if (auth.isCheckingAuth) {
+          return const Scaffold(
+            backgroundColor: Color(0xFF1A1F3C),
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFFF5A623),
+              ),
+            ),
+          );
+        }
+        if (auth.isAuthenticated) {
+          return const DashboardScreen();
+        }
+        return const LoginScreen();
+      },
     );
   }
 }
