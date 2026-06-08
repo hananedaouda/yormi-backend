@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens; // ✅ ajout Sanctum
 
 class User extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory; // ✅ ajout HasApiTokens
 
     protected $fillable = [
         'nom',
@@ -27,12 +28,12 @@ class User extends Authenticatable
         'points',
         'niveau',
         'solde',
-        'token',
+        // ✅ 'token' supprimé — géré par Sanctum maintenant
     ];
 
     protected $hidden = [
         'password',
-        'token',
+        // ✅ 'token' supprimé
     ];
 
     // Relations

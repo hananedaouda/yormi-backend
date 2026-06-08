@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -29,8 +28,8 @@ class AuthController extends Controller
             'points'    => 0,
         ]);
 
-        $token = Str::random(60);
-        $user->update(['token' => $token]);
+        // Sanctum : création du token
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'token' => $token,
@@ -67,16 +66,16 @@ class AuthController extends Controller
             'statut'    => 'en_attente',
         ]);
 
-        $token = Str::random(60);
-        $user->update(['token' => $token]);
+        // Sanctum : création du token
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'token' => $token,
             'user'  => [
-                'id'                   => $user->id,
-                'nom'                  => $user->nom,
-                'role'                 => $user->role,
-                'statut_verification'  => $user->statut,
+                'id'                  => $user->id,
+                'nom'                 => $user->nom,
+                'role'                => $user->role,
+                'statut_verification' => $user->statut,
             ]
         ], 201);
     }
@@ -98,8 +97,9 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $token = Str::random(60);
-        $user->update(['token' => $token]);
+        // Révoquer les anciens tokens et en créer un nouveau
+        $user->tokens()->delete();
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'token' => $token,
@@ -115,7 +115,8 @@ class AuthController extends Controller
     // Déconnexion
     public function logout(Request $request)
     {
-        $request->user()->update(['token' => null]);
+        // Révoque uniquement le token actuel
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'message' => 'Déconnexion réussie'

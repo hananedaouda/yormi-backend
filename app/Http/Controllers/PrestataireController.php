@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Mission;
 use Illuminate\Http\Request;
 
 class PrestataireController extends Controller
@@ -14,11 +14,7 @@ class PrestataireController extends Controller
             'disponible' => 'required|boolean',
         ]);
 
-        $prestataire = User::where('token', $request->bearerToken())->first();
-
-        if (!$prestataire) {
-            return response()->json(['erreur' => true, 'message' => 'Non autorisé'], 401);
-        }
+        $prestataire = $request->user();
 
         $prestataire->update([
             'disponible' => $request->disponible,
@@ -35,23 +31,21 @@ class PrestataireController extends Controller
     // Dashboard prestataire
     public function dashboard(Request $request)
     {
-        $prestataire = User::where('token', $request->bearerToken())->first();
+        $prestataire = $request->user();
 
-        if (!$prestataire) {
-            return response()->json(['erreur' => true, 'message' => 'Non autorisé'], 401);
-        }
-
-        $missionsTotal = \App\Models\Mission::where('prestataire_id', $prestataire->id)->count();
-        $missionsMois  = \App\Models\Mission::where('prestataire_id', $prestataire->id)
-            ->whereMonth('created_at', now()->month)->count();
+        $missionsTotal = Mission::where('prestataire_id', $prestataire->id)->count();
+        $missionsMois  = Mission::where('prestataire_id', $prestataire->id)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
 
         return response()->json([
-            'missions_total'    => $missionsTotal,
-            'missions_ce_mois'  => $missionsMois,
-            'revenus_ce_mois'   => 0,
-            'solde_disponible'  => $prestataire->solde,
-            'note_moyenne'      => $prestataire->note_moyenne,
-            'nb_avis'           => $prestataire->nb_avis,
+            'missions_total'   => $missionsTotal,
+            'missions_ce_mois' => $missionsMois,
+            'revenus_ce_mois'  => 0,
+            'solde_disponible' => $prestataire->solde,
+            'note_moyenne'     => $prestataire->note_moyenne,
+            'nb_avis'          => $prestataire->nb_avis,
         ]);
     }
 }
