@@ -20,6 +20,7 @@ class User extends Authenticatable
         'statut',
         'metier',
         'ville',
+        'carte_identite', 
         'disponible',
         'latitude',
         'longitude',

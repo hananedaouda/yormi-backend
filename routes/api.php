@@ -7,6 +7,7 @@ use App\Http\Controllers\PrestataireController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SignalementController;
 use App\Http\Controllers\FideliteController;
+use App\Http\Controllers\VerificationController;
 
 // ─────────────────────────────────────────
 // Routes PUBLIQUES (pas de token nécessaire)
@@ -50,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/missions/{id}/terminer',          [MissionController::class, 'terminer']);
         Route::put('/prestataire/disponibilite',       [PrestataireController::class, 'disponibilite']);
         Route::get('/prestataire/dashboard',           [PrestataireController::class, 'dashboard']);
+        Route::post('/prestataire/verification', [VerificationController::class, 'uploadCarte']);
     });
 
 });
