@@ -25,8 +25,14 @@ class AuthProvider extends ChangeNotifier {
     try {
       final token = await _storage.read(key: 'token');
       if (token != null) {
-        final response = await _apiService.get('/auth/me');
-        _user = UserModel.fromJson(response.data['user']);
+        final response = await _apiService.get('/prestataire/dashboard');
+        if (response.statusCode == 200) {
+          _user = UserModel(
+            id: 0,
+            nom: 'Prestataire',
+            role: 'prestataire',
+          );
+        }
       }
     } catch (e) {
       await _storage.delete(key: 'token');
