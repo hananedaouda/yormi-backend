@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
+import 'screens/historique/historique_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +17,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(),
+        ),
       ],
       child: MaterialApp(
         title: 'YORMI Prestataire',
@@ -30,6 +34,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (context) => const LoginScreen(),
           '/dashboard': (context) => const DashboardScreen(),
+          '/historique': (context) => const HistoriqueScreen(),
         },
       ),
     );
@@ -47,8 +52,12 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-      Provider.of<AuthProvider>(context, listen: false).checkAuthStatus()
+
+    Future.microtask(
+      () => Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      ).checkAuthStatus(),
     );
   }
 
@@ -66,9 +75,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
             ),
           );
         }
+
         if (auth.isAuthenticated) {
           return const DashboardScreen();
         }
+
         return const LoginScreen();
       },
     );

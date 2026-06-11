@@ -17,12 +17,12 @@ class DashboardStatsModel {
 
   factory DashboardStatsModel.fromJson(Map<String, dynamic> json) {
     return DashboardStatsModel(
-      missionsTotal: json['missions_total'],
-      missionsCeMois: json['missions_ce_mois'],
-      revenuesCeMois: (json['revenus_ce_mois'] as num).toDouble(),
-      soldeDisponible: (json['solde_disponible'] as num).toDouble(),
-      noteMoyenne: (json['note_moyenne'] as num).toDouble(),
-      nbAvis: json['nb_avis'],
+      missionsTotal: json['missions_total'] ?? 0,
+      missionsCeMois: json['missions_ce_mois'] ?? 0,
+      revenuesCeMois: double.parse(json['revenus_ce_mois'].toString()),
+      soldeDisponible: double.parse(json['solde_disponible'].toString()),
+      noteMoyenne: double.parse(json['note_moyenne'].toString()),
+      nbAvis: json['nb_avis'] ?? 0,
     );
   }
 }
