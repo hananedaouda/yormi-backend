@@ -98,7 +98,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   prefixIcon: const Icon(Icons.lock, color: Color(0xFFF5A623)),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                      _obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                       color: Colors.white54,
                     ),
                     onPressed: () {
@@ -150,6 +152,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   );
                 },
+              ),
+              const SizedBox(height: 24),
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, '/register'),
+                child: RichText(
+                  text: const TextSpan(
+                    text: 'Pas encore de compte ? ',
+                    style: TextStyle(color: Colors.white54, fontSize: 14),
+                    children: [
+                      TextSpan(
+                        text: 'Créer un compte',
+                        style: TextStyle(
+                          color: Color(0xFFF5A623),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

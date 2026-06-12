@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
+import 'screens/auth/verification_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/historique/historique_screen.dart';
 
@@ -33,6 +35,8 @@ class MyApp extends StatelessWidget {
         home: const AuthWrapper(),
         routes: {
           '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+          '/verification': (context) => const VerificationScreen(),
           '/dashboard': (context) => const DashboardScreen(),
           '/historique': (context) => const HistoriqueScreen(),
         },
