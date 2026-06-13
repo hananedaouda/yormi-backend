@@ -10,28 +10,30 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory; // ✅ ajout HasApiTokens
 
-    protected $fillable = [
-        'nom',
-        'email',
-        'telephone',
-        'password',
-        'role',
-        'avatar',
-        'statut',
-        'metier',
-        'ville',
-        'carte_identite', 
-        'disponible',
-        'latitude',
-        'longitude',
-        'note_moyenne',
-        'nb_avis',
-        'points',
-        'niveau',
-        'solde',
-        // ✅ 'token' supprimé — géré par Sanctum maintenant
-    ];
-
+protected $fillable = [
+    'nom',
+    'prenom',        // ✅ ajout
+    'date_naissance', // ✅ ajout
+    'email',
+    'telephone',
+    'password',
+    'role',
+    'avatar',
+    'statut',
+    'metier',
+    'ville',
+    'carte_identite',
+    'profil_type',
+    'diplome',
+    'disponible',
+    'latitude',
+    'longitude',
+    'note_moyenne',
+    'nb_avis',
+    'points',
+    'niveau',
+    'solde',
+];
     protected $hidden = [
         'password',
         // ✅ 'token' supprimé

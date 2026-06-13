@@ -8,28 +8,60 @@ class VerificationController extends Controller
 {
     public function uploadCarte(Request $request)
     {
-        $request->validate([
-            'carte_identite' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // max 5MB
-        ]);
+        $user = $request->user();
 
-        $prestataire = $request->user();
-
-        // Supprimer l'ancienne carte si elle existe
-        if ($prestataire->carte_identite && \Storage::disk('public')->exists($prestataire->carte_identite)) {
-            \Storage::disk('public')->delete($prestataire->carte_identite);
+        // Vérifier que c'est bien un prestataire
+        if ($user->role !== 'prestataire') {
+            return response()->json([
+                'erreur'  => true,
+                'message' => 'Seuls les prestataires peuvent envoyer des documents'
+            ], 403);
         }
 
-        // Stocker le nouveau fichier
-        $path = $request->file('carte_identite')->store('cartes_identite', 'public');
-
-        $prestataire->update([
-            'carte_identite' => $path,
-            'statut'         => 'en_attente',
+        $request->validate([
+            'profil_type'    => 'required|in:patron,ouvrier,apprenti',
+            'carte_identite' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'diplome'        => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
+        // Supprimer l'ancienne carte si elle existe
+        if ($user->carte_identite && \Storage::disk('public')->exists($user->carte_identite)) {
+            \Storage::disk('public')->delete($user->carte_identite);
+        }
+
+        // Stocker la carte d'identité
+        $cartePath = $request->file('carte_identite')->store('cartes_identite', 'public');
+
+        $updateData = [
+            'carte_identite' => $cartePath,
+            'profil_type'    => $request->profil_type,
+            'statut'         => 'en_attente',
+        ];
+
+        // Si patron → diplôme obligatoire
+        if ($request->profil_type === 'patron') {
+            if (!$request->hasFile('diplome')) {
+                return response()->json([
+                    'erreur'  => true,
+                    'message' => 'Un patron doit fournir un diplôme ou certificat professionnel'
+                ], 422);
+            }
+
+            // Supprimer l'ancien diplôme si il existe
+            if ($user->diplome && \Storage::disk('public')->exists($user->diplome)) {
+                \Storage::disk('public')->delete($user->diplome);
+            }
+
+            $diplomePath = $request->file('diplome')->store('diplomes', 'public');
+            $updateData['diplome'] = $diplomePath;
+        }
+
+        $user->update($updateData);
+
         return response()->json([
-            'message' => 'Carte d\'identité envoyée, en attente de validation',
-            'statut'  => 'en_attente',
+            'message'      => 'Documents envoyés, en attente de validation',
+            'profil_type'  => $request->profil_type,
+            'statut'       => 'en_attente',
         ], 201);
     }
 }

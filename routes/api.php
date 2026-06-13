@@ -30,6 +30,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/missions/{id}/messages',  [MessageController::class, 'index']);
     Route::post('/missions/{id}/messages', [MessageController::class, 'store']);
 
+    // Upload carte d'identité — accessible à tout prestataire (même en_attente)
+    Route::post('/prestataire/verification', [VerificationController::class, 'uploadCarte']);
+
     // ─────────────────────────────────────────
     // Routes réservées aux CLIENTS
     // ─────────────────────────────────────────
@@ -42,16 +45,15 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     });
 
     // ─────────────────────────────────────────
-    // Routes réservées aux PRESTATAIRES
+    // Routes réservées aux PRESTATAIRES VALIDÉS (statut = actif)
     // ─────────────────────────────────────────
     Route::middleware('role:prestataire')->group(function () {
-        Route::get('/missions',                          [MissionController::class, 'index']);
-        Route::post('/missions/{id}/accepter',           [MissionController::class, 'accepter']);
-        Route::put('/missions/{id}/demarrer',            [MissionController::class, 'demarrer']);
-        Route::put('/missions/{id}/terminer',            [MissionController::class, 'terminer']);
-        Route::put('/prestataire/disponibilite',         [PrestataireController::class, 'disponibilite']);
-        Route::get('/prestataire/dashboard',             [PrestataireController::class, 'dashboard']);
-        Route::post('/prestataire/verification',         [VerificationController::class, 'uploadCarte']);
+        Route::get('/missions',                        [MissionController::class, 'index']);
+        Route::post('/missions/{id}/accepter',         [MissionController::class, 'accepter']);
+        Route::put('/missions/{id}/demarrer',          [MissionController::class, 'demarrer']);
+        Route::put('/missions/{id}/terminer',          [MissionController::class, 'terminer']);
+        Route::put('/prestataire/disponibilite',       [PrestataireController::class, 'disponibilite']);
+        Route::get('/prestataire/dashboard',           [PrestataireController::class, 'dashboard']);
     });
 
 });
