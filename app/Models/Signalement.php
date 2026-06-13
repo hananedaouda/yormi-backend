@@ -16,4 +16,14 @@ class Signalement extends Model
         'description',
         'statut',
     ];
+
+    public function mission()
+    {
+        return $this->belongsTo(Mission::class);
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
 }
