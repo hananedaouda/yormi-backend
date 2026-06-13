@@ -82,6 +82,8 @@ class AuthProvider extends ChangeNotifier {
   
   Future<void> register({
     required String nom,
+    required String prenom,
+    required String dateNaissance,
     required String email,
     required String telephone,
     required String password,
@@ -91,6 +93,8 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _apiService.post('/auth/register/prestataire', {
         'nom': nom,
+        'prenom': prenom,
+        'date_naissance': dateNaissance,
         'email': email,
         'telephone': telephone,
         'password': password,
@@ -99,11 +103,10 @@ class AuthProvider extends ChangeNotifier {
       });
 
       final data = response.data;
-      // On stocke le token mais on ne connecte pas l'utilisateur
-      // Il doit passer par la validation admin d'abord
       await _storage.write(key: 'token', value: data['token']);
-      await _storage.write(key: 'statut_verification', value: data['user']['statut_verification'] ?? 'en_attente');
-
+      await _storage.write(
+          key: 'statut_verification',
+          value: data['user']['statut_verification'] ?? 'en_attente');
     } catch (e) {
       throw Exception('Inscription impossible. Vérifiez vos informations.');
     }

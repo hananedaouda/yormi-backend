@@ -12,12 +12,14 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nomController = TextEditingController();
+  final _prenomController = TextEditingController();
   final _emailController = TextEditingController();
   final _telephoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _metierController = TextEditingController();
   final _villeController = TextEditingController();
 
+  DateTime? _dateNaissance;
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
@@ -25,6 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void dispose() {
     _nomController.dispose();
+    _prenomController.dispose();
     _emailController.dispose();
     _telephoneController.dispose();
     _passwordController.dispose();
@@ -33,8 +36,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFFF5A623),
+              surface: Color(0xFF1A1F3C),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() => _dateNaissance = picked);
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_dateNaissance == null) {
+      setState(() => _errorMessage = 'Veuillez sélectionner votre date de naissance');
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -45,6 +80,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       await auth.register(
         nom: _nomController.text.trim(),
+        prenom: _prenomController.text.trim(),
+        dateNaissance: _formatDate(_dateNaissance!),
         email: _emailController.text.trim(),
         telephone: _telephoneController.text.trim(),
         password: _passwordController.text,
@@ -112,12 +149,56 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 _buildField(
                   controller: _nomController,
-                  label: 'Nom complet',
+                  label: 'Nom',
                   icon: Icons.person_outline,
                   validator: (v) =>
                       v == null || v.isEmpty ? 'Champ requis' : null,
                 ),
                 const SizedBox(height: 16),
+                _buildField(
+                  controller: _prenomController,
+                  label: 'Prénom',
+                  icon: Icons.person_outline,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'Champ requis' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Date de naissance
+                GestureDetector(
+                  onTap: _selectDate,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.07),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.cake_outlined,
+                            color: Color(0xFFF5A623)),
+                        const SizedBox(width: 12),
+                        Text(
+                          _dateNaissance == null
+                              ? 'Date de naissance'
+                              : _formatDate(_dateNaissance!),
+                          style: TextStyle(
+                            color: _dateNaissance == null
+                                ? Colors.white54
+                                : Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.calendar_today,
+                            color: Colors.white38, size: 18),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
                 _buildField(
                   controller: _emailController,
                   label: 'Adresse email',

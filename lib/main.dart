@@ -1,3 +1,4 @@
+import 'screens/auth/attente_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/verification': (context) => const VerificationScreen(),
+          '/attente': (context) => const AttenteScreen(),
           '/dashboard': (context) => const DashboardScreen(),
           '/historique': (context) => const HistoriqueScreen(),
         },
