@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 import '../../services/api_service.dart';
 
 class VerificationScreen extends StatefulWidget {
@@ -65,11 +65,13 @@ class _VerificationScreenState extends State<VerificationScreen> {
       return;
     }
     if (_carteIdentite == null) {
-      setState(() => _errorMessage = 'Veuillez ajouter votre pièce d\'identité');
+      setState(
+          () => _errorMessage = 'Veuillez ajouter votre pièce d\'identité');
       return;
     }
     if (_profilType == 'patron' && _diplome == null) {
-      setState(() => _errorMessage = 'Les patrons doivent fournir un diplôme ou certificat');
+      setState(() => _errorMessage =
+          'Les patrons doivent fournir un diplôme ou certificat');
       return;
     }
 
@@ -80,35 +82,49 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
     try {
       final token = await _storage.read(key: 'token');
-      final dio = Dio();
 
-      final formData = FormData.fromMap({
-        'profil_type': _profilType,
-        'carte_identite': MultipartFile.fromBytes(
+      final uri = Uri.parse('${ApiService.baseUrl}/prestataire/verification');
+      final request = http.MultipartRequest('POST', uri);
+
+      // Headers
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Accept'] = 'application/json';
+      request.headers['ngrok-skip-browser-warning'] = 'true';
+
+      // Champ texte
+      request.fields['profil_type'] = _profilType!;
+
+      // Fichier carte identité
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'carte_identite',
           _carteIdentite!.bytes!,
           filename: _carteIdentite!.name,
         ),
-        if (_profilType == 'patron' && _diplome != null)
-          'diplome': MultipartFile.fromBytes(
+      );
+
+      // Diplôme si patron
+      if (_profilType == 'patron' && _diplome != null) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'diplome',
             _diplome!.bytes!,
             filename: _diplome!.name,
           ),
-      });
+        );
+      }
 
-      await dio.post(
-        '${ApiService.baseUrl}/prestataire/verification',
-        data: formData,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Accept': 'application/json',
-            'ngrok-skip-browser-warning': 'true',
-          },
-        ),
-      );
+      final streamedResponse = await request.send();
+      final statusCode = streamedResponse.statusCode;
 
-      if (context.mounted) {
-        Navigator.pushReplacementNamed(context, '/attente');
+      if (statusCode == 200 || statusCode == 201) {
+        if (context.mounted) {
+          Navigator.pushReplacementNamed(context, '/attente');
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'Erreur serveur ($statusCode). Réessayez.';
+        });
       }
     } catch (e) {
       setState(() {
@@ -154,7 +170,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
               const SizedBox(height: 8),
               const Text(
                 'Sélectionnez votre profil et fournissez vos documents pour activer votre compte.',
-                style: TextStyle(color: Colors.white54, fontSize: 13, height: 1.5),
+                style:
+                    TextStyle(color: Colors.white54, fontSize: 13, height: 1.5),
               ),
               const SizedBox(height: 24),
 
@@ -230,12 +247,14 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.info_outline, color: Color(0xFFF5A623), size: 18),
+                    Icon(Icons.info_outline,
+                        color: Color(0xFFF5A623), size: 18),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Votre compte sera activé après vérification par l\'équipe YORMI.',
-                        style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.5),
+                        style: TextStyle(
+                            color: Colors.white54, fontSize: 12, height: 1.5),
                       ),
                     ),
                   ],
@@ -318,7 +337,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   Text(
                     profil['label'] as String,
                     style: TextStyle(
-                      color: isSelected ? const Color(0xFFF5A623) : Colors.white,
+                      color: isSelected
+                          ? const Color(0xFFF5A623)
+                          : Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -326,13 +347,15 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   const SizedBox(height: 3),
                   Text(
                     profil['description'] as String,
-                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                    style:
+                        const TextStyle(color: Colors.white38, fontSize: 12),
                   ),
                 ],
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: Color(0xFFF5A623), size: 20),
+              const Icon(Icons.check_circle,
+                  color: Color(0xFFF5A623), size: 20),
           ],
         ),
       ),

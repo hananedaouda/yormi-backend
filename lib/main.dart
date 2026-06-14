@@ -1,4 +1,3 @@
-import 'screens/auth/attente_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,6 +5,8 @@ import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/auth/verification_screen.dart';
+import 'screens/auth/attente_screen.dart';
+import 'screens/auth/refus_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/historique/historique_screen.dart';
 
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
           '/register': (context) => const RegisterScreen(),
           '/verification': (context) => const VerificationScreen(),
           '/attente': (context) => const AttenteScreen(),
+          '/refus': (context) => const RefusScreen(),
           '/dashboard': (context) => const DashboardScreen(),
           '/historique': (context) => const HistoriqueScreen(),
         },
@@ -58,12 +60,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-
     Future.microtask(
-      () => Provider.of<AuthProvider>(
-        context,
-        listen: false,
-      ).checkAuthStatus(),
+      () => Provider.of<AuthProvider>(context, listen: false).checkAuthStatus(),
     );
   }
 
@@ -71,6 +69,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, auth, child) {
+        // Chargement en cours
         if (auth.isCheckingAuth) {
           return const Scaffold(
             backgroundColor: Color(0xFF1A1F3C),
@@ -82,11 +81,21 @@ class _AuthWrapperState extends State<AuthWrapper> {
           );
         }
 
-        if (auth.isAuthenticated) {
-          return const DashboardScreen();
+        // Pas connecté
+        if (!auth.isAuthenticated) {
+          return const LoginScreen();
         }
 
-        return const LoginScreen();
+        // Connecté — on redirige selon le statut
+        switch (auth.statutVerification) {
+          case 'verifie':
+            return const DashboardScreen();
+          case 'refuse':
+            return const RefusScreen();
+          case 'en_attente':
+          default:
+            return const AttenteScreen();
+        }
       },
     );
   }

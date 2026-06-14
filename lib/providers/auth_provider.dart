@@ -11,11 +11,13 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isCheckingAuth = true;
   String? _errorMessage;
+  String? _statutVerification;
 
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
   bool get isCheckingAuth => _isCheckingAuth;
   String? get errorMessage => _errorMessage;
+  String? get statutVerification => _statutVerification;
   bool get isAuthenticated => _user != null;
 
   Future<void> checkAuthStatus() async {
@@ -24,6 +26,8 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final token = await _storage.read(key: 'token');
+      final statut = await _storage.read(key: 'statut_verification');
+
       if (token != null) {
         final response = await _apiService.get('/prestataire/dashboard');
         if (response.statusCode == 200) {
@@ -32,11 +36,14 @@ class AuthProvider extends ChangeNotifier {
             nom: 'Prestataire',
             role: 'prestataire',
           );
+          _statutVerification = statut ?? 'en_attente';
         }
       }
     } catch (e) {
       await _storage.delete(key: 'token');
+      await _storage.delete(key: 'statut_verification');
       _user = null;
+      _statutVerification = null;
     }
 
     _isCheckingAuth = false;
@@ -56,6 +63,18 @@ class AuthProvider extends ChangeNotifier {
 
       final data = response.data;
       await _storage.write(key: 'token', value: data['token']);
+
+      // On récupère statut_verification si le backend le retourne
+      // Sinon on garde celui déjà stocké localement
+      final statutFromBackend = data['user']['statut_verification'];
+      if (statutFromBackend != null) {
+        await _storage.write(key: 'statut_verification', value: statutFromBackend);
+        _statutVerification = statutFromBackend;
+      } else {
+        // Backend pas encore mis à jour — on lit le statut stocké localement
+        _statutVerification = await _storage.read(key: 'statut_verification') ?? 'en_attente';
+      }
+
       _user = UserModel.fromJson(data['user']);
       _isLoading = false;
       notifyListeners();
@@ -76,10 +95,12 @@ class AuthProvider extends ChangeNotifier {
       // on continue même si erreur
     }
     await _storage.delete(key: 'token');
+    await _storage.delete(key: 'statut_verification');
     _user = null;
+    _statutVerification = null;
     notifyListeners();
   }
-  
+
   Future<void> register({
     required String nom,
     required String prenom,
@@ -107,6 +128,7 @@ class AuthProvider extends ChangeNotifier {
       await _storage.write(
           key: 'statut_verification',
           value: data['user']['statut_verification'] ?? 'en_attente');
+      _statutVerification = data['user']['statut_verification'] ?? 'en_attente';
     } catch (e) {
       throw Exception('Inscription impossible. Vérifiez vos informations.');
     }
