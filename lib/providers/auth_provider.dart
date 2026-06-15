@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:dio/dio.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 
@@ -26,9 +27,17 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final token = await _storage.read(key: 'token');
-      final statut = await _storage.read(key: 'statut_verification');
 
-      if (token != null) {
+      if (token == null) {
+        _user = null;
+        _statutVerification = null;
+        _isCheckingAuth = false;
+        notifyListeners();
+        return;
+      }
+
+      // On essaie d'appeler le dashboard
+      try {
         final response = await _apiService.get('/prestataire/dashboard');
         if (response.statusCode == 200) {
           _user = UserModel(
@@ -36,7 +45,26 @@ class AuthProvider extends ChangeNotifier {
             nom: 'Prestataire',
             role: 'prestataire',
           );
-          _statutVerification = statut ?? 'en_attente';
+          _statutVerification = 'verifie';
+          await _storage.write(key: 'statut_verification', value: 'verifie');
+        }
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 403) {
+          // Le token est valide mais le compte n'est pas validé
+          // On lit le statut stocké localement
+          final statutLocal = await _storage.read(key: 'statut_verification');
+          _user = UserModel(
+            id: 0,
+            nom: 'Prestataire',
+            role: 'prestataire',
+          );
+          _statutVerification = statutLocal ?? 'en_attente';
+        } else {
+          // Vraie erreur réseau ou autre
+          await _storage.delete(key: 'token');
+          await _storage.delete(key: 'statut_verification');
+          _user = null;
+          _statutVerification = null;
         }
       }
     } catch (e) {
@@ -64,14 +92,11 @@ class AuthProvider extends ChangeNotifier {
       final data = response.data;
       await _storage.write(key: 'token', value: data['token']);
 
-      // On récupère statut_verification si le backend le retourne
-      // Sinon on garde celui déjà stocké localement
       final statutFromBackend = data['user']['statut_verification'];
       if (statutFromBackend != null) {
         await _storage.write(key: 'statut_verification', value: statutFromBackend);
         _statutVerification = statutFromBackend;
       } else {
-        // Backend pas encore mis à jour — on lit le statut stocké localement
         _statutVerification = await _storage.read(key: 'statut_verification') ?? 'en_attente';
       }
 

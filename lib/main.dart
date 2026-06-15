@@ -91,6 +91,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           case 'verifie':
             return const DashboardScreen();
           case 'refuse':
+          case 'rejete':
             return const RefusScreen();
           case 'en_attente':
           default:

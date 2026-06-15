@@ -36,7 +36,14 @@ class _LoginScreenState extends State<LoginScreen> {
     final success = await auth.login(email, password);
 
     if (success && mounted) {
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      final statut = auth.statutVerification;
+      if (statut == 'verifie') {
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      } else if (statut == 'refuse' || statut == 'rejete') {
+        Navigator.pushReplacementNamed(context, '/refus');
+      } else {
+        Navigator.pushReplacementNamed(context, '/attente');
+      }
     }
   }
 
