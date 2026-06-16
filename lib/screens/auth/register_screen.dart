@@ -24,6 +24,89 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   String? _errorMessage;
 
+  static const List<String> _metiers = [
+    'Électricien',
+    'Plombier',
+    'Mécanicien',
+    'Coiffeur / Coiffeuse',
+    'Maçon',
+    'Peintre',
+    'Menuisier',
+    'Soudeur',
+    'Carreleur',
+    'Technicien climatisation',
+    'Femme de ménage',
+    'Photographe',
+    'Déménagement',
+    'Informaticien',
+  ];
+
+  static const List<String> _villes = [
+    'Abomey',
+    'Abomey-Calavi',
+    'Adjarra',
+    'Adjohoun',
+    'Adja-Ouèrè',
+    'Agbangnizoun',
+    'Aguégués',
+    'Aplahoué',
+    'Athiémé',
+    'Avrankou',
+    'Bantè',
+    'Bassila',
+    'Bohicon',
+    'Bonou',
+    'Bopa',
+    'Borgou',
+    'Cotonou',
+    'Cobly',
+    'Copargo',
+    'Comè',
+    'Dangbo',
+    'Dassa-Zoumè',
+    'Djidja',
+    'Djougou',
+    'Dodji-Bata',
+    'Glazoué',
+    'Grand-Popo',
+    'Houéyogbé',
+    'Ifangni',
+    'Kalalé',
+    'Kandi',
+    'Kérou',
+    'Ketou',
+    'Kilibo',
+    'Kouandé',
+    'Kpomassè',
+    'Lokossa',
+    'Malanville',
+    'Matéri',
+    'Missérété',
+    'Natitingou',
+    'Nikki',
+    'Ouidah',
+    'Ouèssè',
+    'Parakou',
+    'Pehonko',
+    'Péhunco',
+    'Pobè',
+    'Porto-Novo',
+    'Sakété',
+    'Savalou',
+    'Savè',
+    'Sèmè-Podji',
+    'Sinendé',
+    'So-Ava',
+    'Tanguiéta',
+    'Tchaourou',
+    'Toffo',
+    'Tori-Bossito',
+    'Toviklin',
+    'Zagnanado',
+    'Zè',
+    'Zogbodomey',
+  ];
+
   @override
   void dispose() {
     _nomController.dispose();
@@ -67,7 +150,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_dateNaissance == null) {
-      setState(() => _errorMessage = 'Veuillez sélectionner votre date de naissance');
+      setState(() =>
+          _errorMessage = 'Veuillez sélectionner votre date de naissance');
       return;
     }
 
@@ -101,6 +185,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  InputDecoration _autocompleteDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.white54),
+      prefixIcon: Icon(icon, color: const Color(0xFFF5A623)),
+      filled: true,
+      fillColor: Colors.white.withOpacity(0.07),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
+      ),
+      errorStyle: const TextStyle(color: Colors.redAccent),
+    );
   }
 
   @override
@@ -220,24 +323,127 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       v == null || v.isEmpty ? 'Champ requis' : null,
                 ),
                 const SizedBox(height: 16),
-                _buildField(
-                  controller: _metierController,
-                  label: 'Métier / Spécialité',
-                  icon: Icons.build_outlined,
-                  hint: 'ex: electricien, plombier',
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Champ requis' : null,
+
+                // Métier avec autocomplete
+                Autocomplete<String>(
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    if (textEditingValue.text.isEmpty) return _metiers;
+                    return _metiers.where((m) => m
+                        .toLowerCase()
+                        .contains(textEditingValue.text.toLowerCase()));
+                  },
+                  onSelected: (String selection) {
+                    _metierController.text = selection;
+                  },
+                  fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
+                    controller.text = _metierController.text;
+                    controller.addListener(() {
+                      _metierController.text = controller.text;
+                    });
+                    return TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      style: const TextStyle(color: Colors.white),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Champ requis' : null,
+                      decoration: _autocompleteDecoration(
+                          'Métier / Spécialité', Icons.build_outlined),
+                    );
+                  },
+                  optionsViewBuilder: (context, onSelected, options) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Material(
+                        color: const Color(0xFF252B4B),
+                        borderRadius: BorderRadius.circular(12),
+                        elevation: 4,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemCount: options.length,
+                            itemBuilder: (context, index) {
+                              final option = options.elementAt(index);
+                              return ListTile(
+                                title: Text(
+                                  option,
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 14),
+                                ),
+                                onTap: () => onSelected(option),
+                                hoverColor:
+                                    const Color(0xFFF5A623).withOpacity(0.1),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
-                _buildField(
-                  controller: _villeController,
-                  label: 'Ville',
-                  icon: Icons.location_city_outlined,
-                  hint: 'ex: Cotonou',
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Champ requis' : null,
+
+                // Ville avec autocomplete
+                Autocomplete<String>(
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    if (textEditingValue.text.isEmpty) return _villes;
+                    return _villes.where((v) => v
+                        .toLowerCase()
+                        .contains(textEditingValue.text.toLowerCase()));
+                  },
+                  onSelected: (String selection) {
+                    _villeController.text = selection;
+                  },
+                  fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
+                    controller.text = _villeController.text;
+                    controller.addListener(() {
+                      _villeController.text = controller.text;
+                    });
+                    return TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      style: const TextStyle(color: Colors.white),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Champ requis' : null,
+                      decoration: _autocompleteDecoration(
+                          'Ville', Icons.location_city_outlined),
+                    );
+                  },
+                  optionsViewBuilder: (context, onSelected, options) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Material(
+                        color: const Color(0xFF252B4B),
+                        borderRadius: BorderRadius.circular(12),
+                        elevation: 4,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemCount: options.length,
+                            itemBuilder: (context, index) {
+                              final option = options.elementAt(index);
+                              return ListTile(
+                                title: Text(
+                                  option,
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 14),
+                                ),
+                                onTap: () => onSelected(option),
+                                hoverColor:
+                                    const Color(0xFFF5A623).withOpacity(0.1),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
+
                 _buildPasswordField(),
                 const SizedBox(height: 32),
 
@@ -330,8 +536,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: Color(0xFFF5A623), width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
         ),
         errorStyle: const TextStyle(color: Colors.redAccent),
       ),
@@ -351,8 +556,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: InputDecoration(
         labelText: 'Mot de passe',
         labelStyle: const TextStyle(color: Colors.white54),
-        prefixIcon:
-            const Icon(Icons.lock_outline, color: Color(0xFFF5A623)),
+        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFF5A623)),
         suffixIcon: IconButton(
           icon: Icon(
             _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -369,8 +573,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: Color(0xFFF5A623), width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
         ),
         errorStyle: const TextStyle(color: Colors.redAccent),
       ),
