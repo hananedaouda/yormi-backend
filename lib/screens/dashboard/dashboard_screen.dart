@@ -28,6 +28,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadDashboard() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       final stats = await _dashboardService.getDashboardStats();
       setState(() {
@@ -55,7 +59,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur lors du changement de disponibilité')),
+        const SnackBar(
+            content: Text('Erreur lors du changement de disponibilité')),
       );
     }
 
@@ -64,6 +69,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final nomComplet = auth.user?.nomComplet ?? 'Prestataire';
+
     return Scaffold(
       backgroundColor: const Color(0xFF1A1F3C),
       appBar: AppBar(
@@ -80,14 +88,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.history, color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/historique');
-            },
+            onPressed: () => Navigator.pushNamed(context, '/historique'),
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
-              final auth = Provider.of<AuthProvider>(context, listen: false);
+              final auth =
+                  Provider.of<AuthProvider>(context, listen: false);
               await auth.logout();
               if (context.mounted) {
                 Navigator.pushReplacementNamed(context, '/login');
@@ -105,7 +112,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(_error!, style: const TextStyle(color: Colors.red)),
+                      Text(_error!,
+                          style: const TextStyle(color: Colors.red)),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _loadDashboard,
@@ -122,34 +130,84 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Tableau de bord',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        // Header avec nom du prestataire
+                        Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF5A623).withOpacity(0.2),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(0xFFF5A623),
+                                  width: 2,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.person,
+                                color: Color(0xFFF5A623),
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Bonjour 👋',
+                                  style: TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                Text(
+                                  nomComplet,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 24),
-                        _buildStatCard('Missions totales', '${_stats!.missionsTotal}', Icons.check_circle),
+                        const SizedBox(height: 28),
+
+                        // Stats
+                        _buildStatCard('Missions totales',
+                            '${_stats!.missionsTotal}', Icons.check_circle),
                         const SizedBox(height: 16),
-                        _buildStatCard('Missions ce mois', '${_stats!.missionsCeMois}', Icons.calendar_month),
+                        _buildStatCard('Missions ce mois',
+                            '${_stats!.missionsCeMois}', Icons.calendar_month),
                         const SizedBox(height: 16),
-                        _buildStatCard('Revenus ce mois', '${_stats!.revenuesCeMois} FCFA', Icons.attach_money),
+                        _buildStatCard('Revenus ce mois',
+                            '${_stats!.revenuesCeMois} FCFA', Icons.attach_money),
                         const SizedBox(height: 16),
-                        _buildStatCard('Solde disponible', '${_stats!.soldeDisponible} FCFA', Icons.account_balance_wallet),
+                        _buildStatCard(
+                            'Solde disponible',
+                            '${_stats!.soldeDisponible} FCFA',
+                            Icons.account_balance_wallet),
                         const SizedBox(height: 16),
-                        _buildStatCard('Note moyenne', '${_stats!.noteMoyenne} ⭐', Icons.star),
+                        _buildStatCard('Note moyenne',
+                            '${_stats!.noteMoyenne} ⭐', Icons.star),
                         const SizedBox(height: 16),
-                        _buildStatCard('Nombre d\'avis', '${_stats!.nbAvis}', Icons.reviews),
+                        _buildStatCard('Nombre d\'avis',
+                            '${_stats!.nbAvis}', Icons.reviews),
                         const SizedBox(height: 32),
+
+                        // Toggle disponibilité
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: _isDisponible ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                            color: _isDisponible
+                                ? Colors.green.withOpacity(0.2)
+                                : Colors.red.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _isDisponible ? Colors.green : Colors.red,
+                              color:
+                                  _isDisponible ? Colors.green : Colors.red,
                               width: 1,
                             ),
                           ),
@@ -160,24 +218,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _isDisponible ? 'Disponible' : 'Indisponible',
+                                    _isDisponible
+                                        ? 'Disponible'
+                                        : 'Indisponible',
                                     style: TextStyle(
-                                      color: _isDisponible ? Colors.green : Colors.red,
+                                      color: _isDisponible
+                                          ? Colors.green
+                                          : Colors.red,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
-                                    _isDisponible ? 'Vous recevez des missions' : 'Vous ne recevez pas de missions',
-                                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                                    _isDisponible
+                                        ? 'Vous recevez des missions'
+                                        : 'Vous ne recevez pas de missions',
+                                    style: const TextStyle(
+                                        color: Colors.white54, fontSize: 12),
                                   ),
                                 ],
                               ),
                               _isTogglingDisponibilite
-                                  ? const CircularProgressIndicator(color: Color(0xFFF5A623))
+                                  ? const CircularProgressIndicator(
+                                      color: Color(0xFFF5A623))
                                   : Switch(
                                       value: _isDisponible,
-                                      onChanged: (_) => _toggleDisponibilite(),
+                                      onChanged: (_) =>
+                                          _toggleDisponibilite(),
                                       activeColor: const Color(0xFFF5A623),
                                     ),
                             ],
@@ -206,7 +273,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(color: Colors.white54, fontSize: 13),
+                style:
+                    const TextStyle(color: Colors.white54, fontSize: 13),
               ),
               Text(
                 value,
