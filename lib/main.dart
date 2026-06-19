@@ -1,3 +1,4 @@
+import 'screens/mission/mission_reception_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         ),
         home: const AuthWrapper(),
         routes: {
+          '/missions': (context) => const MissionReceptionScreen(),
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/verification': (context) => const VerificationScreen(),

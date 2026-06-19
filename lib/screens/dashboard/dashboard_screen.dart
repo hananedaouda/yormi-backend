@@ -197,6 +197,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             '${_stats!.nbAvis}', Icons.reviews),
                         const SizedBox(height: 32),
 
+                        // Bouton missions
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton.icon(
+                            onPressed: () => Navigator.pushNamed(context, '/missions'),
+                            icon: const Icon(Icons.notifications_active, color: Colors.white),
+                            label: const Text(
+                              'Recevoir des missions',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF5A623),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
                         // Toggle disponibilité
                         Container(
                           padding: const EdgeInsets.all(16),
