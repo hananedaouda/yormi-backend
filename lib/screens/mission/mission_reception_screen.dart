@@ -54,11 +54,24 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
         setState(() => _secondesRestantes--);
       }
     }
+
     if (_secondesRestantes == 0 && mounted) {
-      setState(() {
-        _missionEnAttente = null;
-        _timerActif = false;
-      });
+      if (_missionEnAttente != null) {
+        try {
+          final missionId = _missionEnAttente!['id'];
+          await _apiService.post('/missions/$missionId/refuser', {
+            'raison': 'Délai expiré',
+          });
+        } catch (e) {
+          // On continue même si erreur
+        }
+      }
+      if (mounted) {
+        setState(() {
+          _missionEnAttente = null;
+          _timerActif = false;
+        });
+      }
     }
   }
 
