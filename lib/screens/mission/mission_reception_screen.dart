@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/reverb_service.dart';
+import '../../services/api_service.dart';
 
 class MissionReceptionScreen extends StatefulWidget {
   const MissionReceptionScreen({super.key});
@@ -10,6 +11,7 @@ class MissionReceptionScreen extends StatefulWidget {
 
 class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
   final ReverbService _reverbService = ReverbService();
+  final ApiService _apiService = ApiService();
   Map<String, dynamic>? _missionEnAttente;
   bool _isConnecting = true;
   bool _isAccepting = false;
@@ -71,6 +73,62 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
     final min = (secondes ~/ 60).toString().padLeft(2, '0');
     final sec = (secondes % 60).toString().padLeft(2, '0');
     return '$min:$sec';
+  }
+
+  Future<void> _accepterMission() async {
+    setState(() => _isAccepting = true);
+    _timerActif = false;
+
+    try {
+      final missionId = _missionEnAttente!['id'];
+      final response = await _apiService.post('/missions/$missionId/accepter', {});
+
+      if (response.statusCode == 200) {
+        if (mounted) {
+          final data = response.data;
+          Navigator.pushReplacementNamed(
+            context,
+            '/mission-en-cours',
+            arguments: {
+              'missionId': _missionEnAttente!['id'],
+              'serviceType': _missionEnAttente!['service_type'] ?? '-',
+              'adresse': data['mission']?['adresse'] ?? _missionEnAttente!['adresse'] ?? '-',
+              'clientNom': data['client']?['nom'] ?? 'Client',
+            },
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erreur lors de l\'acceptation'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      _timerActif = true;
+      _tickTimer();
+    }
+
+    if (mounted) setState(() => _isAccepting = false);
+  }
+
+  Future<void> _declinerMission() async {
+    _timerActif = false;
+
+    try {
+      final missionId = _missionEnAttente!['id'];
+      await _apiService.post('/missions/$missionId/refuser', {
+        'raison': 'Prestataire indisponible',
+      });
+    } catch (e) {
+      // On continue même si erreur
+    }
+
+    if (mounted) {
+      setState(() => _missionEnAttente = null);
+    }
   }
 
   @override
@@ -169,7 +227,6 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          // Timer
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -203,7 +260,6 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Carte mission
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -215,25 +271,21 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5A623).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        '🔔 Nouvelle demande !',
-                        style: TextStyle(
-                          color: Color(0xFFF5A623),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5A623).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    '🔔 Nouvelle demande !',
+                    style: TextStyle(
+                      color: Color(0xFFF5A623),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
                     ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _buildInfoRow(Icons.build_outlined,
@@ -254,19 +306,11 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
           ),
           const SizedBox(height: 32),
 
-          // Boutons
           Row(
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: _isAccepting
-                      ? null
-                      : () {
-                          setState(() {
-                            _missionEnAttente = null;
-                            _timerActif = false;
-                          });
-                        },
+                  onPressed: _isAccepting ? null : _declinerMission,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white54,
                     side: const BorderSide(color: Colors.white24),
@@ -316,32 +360,6 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
     );
   }
 
-  Future<void> _accepterMission() async {
-    setState(() => _isAccepting = true);
-    _timerActif = false;
-
-    try {
-      // TODO: appeler POST /missions/{id}/accepter
-      final missionId = _missionEnAttente!['id'];
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Mission #$missionId acceptée !'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      setState(() => _missionEnAttente = null);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erreur lors de l\'acceptation'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-
-    setState(() => _isAccepting = false);
-  }
-
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,8 +372,7 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
             children: [
               Text(
                 label,
-                style:
-                    const TextStyle(color: Colors.white38, fontSize: 12),
+                style: const TextStyle(color: Colors.white38, fontSize: 12),
               ),
               Text(
                 value,

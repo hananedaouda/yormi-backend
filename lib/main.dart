@@ -1,3 +1,4 @@
+import 'screens/mission/mission_en_cours_screen.dart';
 import 'screens/mission/mission_reception_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +38,6 @@ class MyApp extends StatelessWidget {
         ),
         home: const AuthWrapper(),
         routes: {
-          '/missions': (context) => const MissionReceptionScreen(),
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/verification': (context) => const VerificationScreen(),
@@ -45,6 +45,21 @@ class MyApp extends StatelessWidget {
           '/refus': (context) => const RefusScreen(),
           '/dashboard': (context) => const DashboardScreen(),
           '/historique': (context) => const HistoriqueScreen(),
+          '/missions': (context) => const MissionReceptionScreen(),
+        },
+        onGenerateRoute: (settings) {
+          if (settings.name == '/mission-en-cours') {
+            final args = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (context) => MissionEnCoursScreen(
+                missionId: args['missionId'],
+                serviceType: args['serviceType'],
+                adresse: args['adresse'],
+                clientNom: args['clientNom'],
+              ),
+            );
+          }
+          return null;
         },
       ),
     );

@@ -17,7 +17,7 @@ class ReverbService {
     try {
       final options = PusherChannelsOptions.fromHost(
         scheme: 'wss',
-        host: 'mile-encourage-bytes-equivalent.trycloudflare.com',
+        host: 'ralph-composite-lion-almost.trycloudflare.com',
         key: 'yrrwjrtdpnhp2qwdqm7y',
         port: 443,
       );
