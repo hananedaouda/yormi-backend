@@ -38,11 +38,11 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
     }
   }
 
-  int _secondesRestantes = 180;
+  int _secondesRestantes = 300;
   bool _timerActif = false;
 
   void _demarrerTimer() {
-    _secondesRestantes = 180;
+    _secondesRestantes = 300;
     _timerActif = true;
     _tickTimer();
   }
@@ -216,7 +216,7 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
 
   Widget _buildMissionCard() {
     final mission = _missionEnAttente!;
-    final double pourcentage = _secondesRestantes / 180;
+    final double pourcentage = _secondesRestantes / 300;
     final Color timerColor = _secondesRestantes > 60
         ? Colors.green
         : _secondesRestantes > 30
