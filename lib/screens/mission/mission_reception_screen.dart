@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/reverb_service.dart';
 import '../../services/api_service.dart';
+import '../../core/theme/app_colors.dart';
 
 class MissionReceptionScreen extends StatefulWidget {
   const MissionReceptionScreen({super.key});
@@ -94,7 +95,8 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
 
     try {
       final missionId = _missionEnAttente!['id'];
-      final response = await _apiService.post('/missions/$missionId/accepter', {});
+      final response =
+          await _apiService.post('/missions/$missionId/accepter', {});
 
       if (response.statusCode == 200) {
         if (mounted) {
@@ -105,18 +107,31 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
             arguments: {
               'missionId': _missionEnAttente!['id'],
               'serviceType': _missionEnAttente!['service_type'] ?? '-',
-              'adresse': data['mission']?['adresse'] ?? _missionEnAttente!['adresse'] ?? '-',
+              'adresse': data['mission']?['adresse'] ??
+                  _missionEnAttente!['adresse'] ??
+                  '-',
               'clientNom': data['client']?['nom'] ?? 'Client',
             },
           );
         }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erreur serveur (${response.statusCode})'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+        _timerActif = true;
+        _tickTimer();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Erreur lors de l\'acceptation'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -147,15 +162,15 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1F3C),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1F3C),
+        backgroundColor: AppColors.background,
         elevation: 0,
         title: Row(
           children: [
             const Text(
               'Missions',
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
             ),
             const SizedBox(width: 10),
             Container(
@@ -163,13 +178,15 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
               height: 10,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _reverbService.isConnected ? Colors.green : Colors.red,
+                color: _reverbService.isConnected
+                    ? AppColors.success
+                    : AppColors.error,
               ),
             ),
           ],
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -178,11 +195,11 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: Color(0xFFF5A623)),
+                  CircularProgressIndicator(color: AppColors.accent),
                   SizedBox(height: 16),
                   Text(
                     'Connexion au serveur...',
-                    style: TextStyle(color: Colors.white54),
+                    style: TextStyle(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -196,12 +213,12 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF5A623).withOpacity(0.15),
+                          color: AppColors.accent.withOpacity(0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.search,
-                          color: Color(0xFFF5A623),
+                          color: AppColors.accent,
                           size: 40,
                         ),
                       ),
@@ -209,7 +226,7 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
                       const Text(
                         'En attente de missions...',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -218,7 +235,10 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
                       const Text(
                         'Vous serez notifié dès qu\'une demande arrive.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white54, fontSize: 14),
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -231,10 +251,10 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
     final mission = _missionEnAttente!;
     final double pourcentage = _secondesRestantes / 300;
     final Color timerColor = _secondesRestantes > 60
-        ? Colors.green
+        ? AppColors.success
         : _secondesRestantes > 30
             ? Colors.orange
-            : Colors.red;
+            : AppColors.error;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -265,7 +285,7 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
                 const SizedBox(height: 12),
                 LinearProgressIndicator(
                   value: pourcentage,
-                  backgroundColor: Colors.white12,
+                  backgroundColor: AppColors.cardBorder,
                   valueColor: AlwaysStoppedAnimation<Color>(timerColor),
                 ),
               ],
@@ -285,34 +305,34 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5A623).withOpacity(0.2),
+                    color: AppColors.accent.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
                     '🔔 Nouvelle demande !',
                     style: TextStyle(
-                      color: Color(0xFFF5A623),
+                      color: AppColors.accent,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildInfoRow(Icons.build_outlined,
-                    'Service', mission['service_type'] ?? '-'),
+                _buildInfoRow(
+                    Icons.build_outlined, 'Service', mission['service_type'] ?? '-'),
                 const SizedBox(height: 12),
-                _buildInfoRow(Icons.location_on_outlined,
-                    'Adresse', mission['adresse'] ?? '-'),
+                _buildInfoRow(
+                    Icons.location_on_outlined, 'Adresse', mission['adresse'] ?? '-'),
                 const SizedBox(height: 12),
-                _buildInfoRow(Icons.description_outlined,
-                    'Description', mission['description'] ?? '-'),
+                _buildInfoRow(Icons.description_outlined, 'Description',
+                    mission['description'] ?? '-'),
                 if (mission['montant'] != null) ...[
                   const SizedBox(height: 12),
-                  _buildInfoRow(Icons.attach_money,
-                      'Montant', '${mission['montant']} FCFA'),
+                  _buildInfoRow(Icons.attach_money, 'Montant',
+                      '${mission['montant']} FCFA'),
                 ],
               ],
             ),
@@ -325,8 +345,8 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
                 child: OutlinedButton(
                   onPressed: _isAccepting ? null : _declinerMission,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white54,
-                    side: const BorderSide(color: Colors.white24),
+                    foregroundColor: AppColors.textSecondary,
+                    side: const BorderSide(color: AppColors.cardBorder),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -343,8 +363,8 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
                 child: ElevatedButton(
                   onPressed: _isAccepting ? null : _accepterMission,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.success,
+                    foregroundColor: AppColors.textPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -355,7 +375,7 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             strokeWidth: 2,
                           ),
                         )
@@ -377,7 +397,7 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: const Color(0xFFF5A623), size: 20),
+        Icon(icon, color: AppColors.accent, size: 20),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
@@ -385,11 +405,17 @@ class _MissionReceptionScreenState extends State<MissionReceptionScreen> {
             children: [
               Text(
                 label,
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                ),
               ),
               Text(
                 value,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),

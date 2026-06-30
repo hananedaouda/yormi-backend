@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
+import '../../core/theme/app_colors.dart';
 
 class MissionEnCoursScreen extends StatefulWidget {
   final int missionId;
@@ -37,7 +38,16 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Mission démarrée !'),
-              backgroundColor: Colors.blue,
+              backgroundColor: AppColors.info,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erreur serveur (${response.statusCode})'),
+              backgroundColor: AppColors.error,
             ),
           );
         }
@@ -47,13 +57,13 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Erreur lors du démarrage'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _terminerMission() async {
@@ -73,19 +83,28 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
             ),
           );
         }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erreur serveur (${response.statusCode})'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Erreur lors de la terminaison'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   String get _statutLabel {
@@ -104,28 +123,31 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
   Color get _statutColor {
     switch (_statut) {
       case 'acceptee':
-        return const Color(0xFFF5A623);
+        return AppColors.accent;
       case 'en_cours':
-        return Colors.blue;
+        return AppColors.info;
       case 'terminee_attente_validation':
-        return Colors.green;
+        return AppColors.success;
       default:
-        return Colors.white54;
+        return AppColors.textSecondary;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isTerminee = _statut == 'terminee_attente_validation';
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1F3C),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1F3C),
+        backgroundColor: AppColors.background,
         elevation: 0,
         title: const Text(
           'Mission en cours',
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
         ),
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: isTerminee,
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -172,7 +194,7 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                border: Border.all(color: AppColors.cardBorder),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +202,7 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                   const Text(
                     'DÉTAILS DE LA MISSION',
                     style: TextStyle(
-                      color: Colors.white38,
+                      color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.5,
@@ -204,7 +226,7 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                border: Border.all(color: AppColors.cardBorder),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,7 +234,7 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                   const Text(
                     'PROGRESSION',
                     style: TextStyle(
-                      color: Colors.white38,
+                      color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.5,
@@ -223,7 +245,8 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                   _buildEtape(2, 'En route vers le client',
                       _statut != 'acceptee'),
                   _buildEtape(3, 'Travail en cours',
-                      _statut == 'en_cours' || _statut == 'terminee_attente_validation'),
+                      _statut == 'en_cours' ||
+                          _statut == 'terminee_attente_validation'),
                   _buildEtape(4, 'En attente de validation',
                       _statut == 'terminee_attente_validation'),
                 ],
@@ -231,20 +254,19 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Bouton selon statut
             if (_statut == 'acceptee')
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : _demarrerMission,
-                  icon: const Icon(Icons.play_arrow, color: Colors.white),
+                  icon: const Icon(Icons.play_arrow, color: AppColors.textPrimary),
                   label: _isLoading
                       ? const SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             strokeWidth: 2,
                           ),
                         )
@@ -253,11 +275,11 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppColors.info,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -271,13 +293,13 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                 height: 56,
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : _terminerMission,
-                  icon: const Icon(Icons.check_circle, color: Colors.white),
+                  icon: const Icon(Icons.check_circle, color: AppColors.textPrimary),
                   label: _isLoading
                       ? const SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             strokeWidth: 2,
                           ),
                         )
@@ -286,11 +308,11 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: AppColors.success,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -298,18 +320,18 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                 ),
               ),
 
-            if (_statut == 'terminee_attente_validation')
+            if (isTerminee) ...[
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: AppColors.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.success.withOpacity(0.3)),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.hourglass_empty, color: Colors.green, size: 24),
+                    Icon(Icons.hourglass_empty, color: AppColors.success, size: 24),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -320,6 +342,35 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/dashboard',
+                      (route) => false,
+                    );
+                  },
+                  icon: const Icon(Icons.home_outlined,
+                      color: AppColors.textSecondary),
+                  label: const Text(
+                    'Retour au dashboard',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -336,17 +387,18 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
             height: 28,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: fait ? Colors.green : Colors.white12,
+              color: fait ? AppColors.success : AppColors.cardBorder,
             ),
             child: Center(
               child: fait
-                  ? const Icon(Icons.check, color: Colors.white, size: 16)
+                  ? const Icon(Icons.check, color: AppColors.textPrimary, size: 16)
                   : Text(
                       '$numero',
                       style: const TextStyle(
-                          color: Colors.white38,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold),
+                        color: AppColors.textMuted,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
             ),
           ),
@@ -354,7 +406,7 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
           Text(
             label,
             style: TextStyle(
-              color: fait ? Colors.white : Colors.white38,
+              color: fait ? AppColors.textPrimary : AppColors.textMuted,
               fontSize: 14,
             ),
           ),
@@ -367,7 +419,7 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: const Color(0xFFF5A623), size: 20),
+        Icon(icon, color: AppColors.accent, size: 20),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
@@ -375,11 +427,17 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
             children: [
               Text(
                 label,
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                ),
               ),
               Text(
                 value,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),

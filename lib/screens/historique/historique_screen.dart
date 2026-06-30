@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/mission_model.dart';
 import '../../services/mission_service.dart';
+import '../../core/theme/app_colors.dart';
 
 class HistoriqueScreen extends StatefulWidget {
   const HistoriqueScreen({super.key});
@@ -22,6 +23,10 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
   }
 
   Future<void> _loadMissions() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       final missions = await _missionService.getMissions();
       setState(() {
@@ -39,31 +44,35 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1F3C),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1F3C),
+        backgroundColor: AppColors.background,
         title: const Text(
           'Historique',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFF5A623)),
+              child: CircularProgressIndicator(color: AppColors.accent),
             )
           : _error != null
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(_error!, style: const TextStyle(color: Colors.red)),
+                      Text(_error!,
+                          style: const TextStyle(color: AppColors.error)),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _loadMissions,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accent,
+                        ),
                         child: const Text('Réessayer'),
                       ),
                     ],
@@ -73,11 +82,12 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
                   ? const Center(
                       child: Text(
                         'Aucune mission pour le moment',
-                        style: TextStyle(color: Colors.white54),
+                        style: TextStyle(color: AppColors.textSecondary),
                       ),
                     )
                   : RefreshIndicator(
                       onRefresh: _loadMissions,
+                      color: AppColors.accent,
                       child: ListView.builder(
                         padding: const EdgeInsets.all(16),
                         itemCount: _missions.length,
@@ -95,7 +105,7 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white10,
+        color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -116,7 +126,7 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
                 Text(
                   mission.serviceType,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -125,20 +135,24 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
                 Text(
                   '${mission.montant != null ? mission.montant!.toStringAsFixed(0) : "—"} FCFA',
                   style: const TextStyle(
-                    color: Color(0xFFF5A623),
+                    color: AppColors.accent,
                     fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   mission.createdAt.substring(0, 10),
-                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: mission.statutColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),

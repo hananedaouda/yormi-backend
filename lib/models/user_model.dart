@@ -30,6 +30,6 @@ class UserModel {
     if (prenom != null && prenom!.isNotEmpty) {
       return '$prenom $nom';
     }
-    return nom;
+    return nom;  
   }
 }

@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../../services/api_service.dart';
+import '../../core/theme/app_colors.dart';
 
 class VerificationScreen extends StatefulWidget {
   const VerificationScreen({super.key});
@@ -86,15 +87,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
       final uri = Uri.parse('${ApiService.baseUrl}/prestataire/verification');
       final request = http.MultipartRequest('POST', uri);
 
-      // Headers
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Accept'] = 'application/json';
       request.headers['ngrok-skip-browser-warning'] = 'true';
 
-      // Champ texte
       request.fields['profil_type'] = _profilType!;
 
-      // Fichier carte identité
       request.files.add(
         http.MultipartFile.fromBytes(
           'carte_identite',
@@ -103,7 +101,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
         ),
       );
 
-      // Diplôme si patron
       if (_profilType == 'patron' && _diplome != null) {
         request.files.add(
           http.MultipartFile.fromBytes(
@@ -140,16 +137,16 @@ class _VerificationScreenState extends State<VerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1F3C),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1F3C),
+        backgroundColor: AppColors.background,
         elevation: 0,
         title: const Text(
           'Vérification du compte',
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
         ),
       ),
@@ -162,7 +159,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               const Text(
                 'Votre profil',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -170,8 +167,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
               const SizedBox(height: 8),
               const Text(
                 'Sélectionnez votre profil et fournissez vos documents pour activer votre compte.',
-                style:
-                    TextStyle(color: Colors.white54, fontSize: 13, height: 1.5),
+                style: TextStyle(
+                    color: AppColors.textSecondary, fontSize: 13, height: 1.5),
               ),
               const SizedBox(height: 24),
 
@@ -179,13 +176,15 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.15),
+                    color: AppColors.error.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                    border:
+                        Border.all(color: AppColors.error.withOpacity(0.3)),
                   ),
                   child: Text(
                     _errorMessage!,
-                    style: const TextStyle(color: Colors.red, fontSize: 13),
+                    style:
+                        const TextStyle(color: AppColors.error, fontSize: 13),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -194,7 +193,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               const Text(
                 'TYPE DE PROFIL',
                 style: TextStyle(
-                  color: Colors.white38,
+                  color: AppColors.textMuted,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.5,
@@ -207,7 +206,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               const Text(
                 'DOCUMENTS',
                 style: TextStyle(
-                  color: Colors.white38,
+                  color: AppColors.textMuted,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.5,
@@ -243,18 +242,21 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.04),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.08)),
+                  border:
+                      Border.all(color: Colors.white.withOpacity(0.08)),
                 ),
                 child: const Row(
                   children: [
                     Icon(Icons.info_outline,
-                        color: Color(0xFFF5A623), size: 18),
+                        color: AppColors.accent, size: 18),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Votre compte sera activé après vérification par l\'équipe YORMI.',
                         style: TextStyle(
-                            color: Colors.white54, fontSize: 12, height: 1.5),
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                            height: 1.5),
                       ),
                     ),
                   ],
@@ -268,8 +270,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF5A623),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: AppColors.textPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -279,7 +281,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             strokeWidth: 2,
                           ),
                         )
@@ -312,12 +314,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFFF5A623).withOpacity(0.1)
+              ? AppColors.accent.withOpacity(0.1)
               : Colors.white.withOpacity(0.04),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFFF5A623)
+                ? AppColors.accent
                 : Colors.white.withOpacity(0.1),
             width: isSelected ? 1.5 : 1,
           ),
@@ -326,7 +328,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
           children: [
             Icon(
               profil['icon'] as IconData,
-              color: isSelected ? const Color(0xFFF5A623) : Colors.white38,
+              color: isSelected ? AppColors.accent : AppColors.textMuted,
               size: 28,
             ),
             const SizedBox(width: 14),
@@ -338,8 +340,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     profil['label'] as String,
                     style: TextStyle(
                       color: isSelected
-                          ? const Color(0xFFF5A623)
-                          : Colors.white,
+                          ? AppColors.accent
+                          : AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -347,15 +349,15 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   const SizedBox(height: 3),
                   Text(
                     profil['description'] as String,
-                    style:
-                        const TextStyle(color: Colors.white38, fontSize: 12),
+                    style: const TextStyle(
+                        color: AppColors.textMuted, fontSize: 12),
                   ),
                 ],
               ),
             ),
             if (isSelected)
               const Icon(Icons.check_circle,
-                  color: Color(0xFFF5A623), size: 20),
+                  color: AppColors.accent, size: 20),
           ],
         ),
       ),
@@ -377,12 +379,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: hasFile
-              ? Colors.green.withOpacity(0.08)
+              ? AppColors.success.withOpacity(0.08)
               : Colors.white.withOpacity(0.04),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: hasFile
-                ? Colors.green.withOpacity(0.4)
+                ? AppColors.success.withOpacity(0.4)
                 : Colors.white.withOpacity(0.1),
           ),
         ),
@@ -390,7 +392,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
           children: [
             Icon(
               hasFile ? Icons.check_circle_outline : icon,
-              color: hasFile ? Colors.green : const Color(0xFFF5A623),
+              color: hasFile ? AppColors.success : AppColors.accent,
               size: 28,
             ),
             const SizedBox(width: 14),
@@ -403,7 +405,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       Text(
                         label,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                         ),
@@ -411,7 +413,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       if (required)
                         const Text(
                           ' *',
-                          style: TextStyle(color: Colors.red, fontSize: 14),
+                          style:
+                              TextStyle(color: AppColors.error, fontSize: 14),
                         ),
                     ],
                   ),
@@ -419,7 +422,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   Text(
                     hasFile ? file!.name : subtitle,
                     style: TextStyle(
-                      color: hasFile ? Colors.green : Colors.white38,
+                      color: hasFile
+                          ? AppColors.success
+                          : AppColors.textMuted,
                       fontSize: 12,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -429,7 +434,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
             ),
             Icon(
               hasFile ? Icons.edit_outlined : Icons.upload_outlined,
-              color: Colors.white38,
+              color: AppColors.textMuted,
               size: 20,
             ),
           ],

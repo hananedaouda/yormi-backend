@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../models/dashboard_stats_model.dart';
 import '../../services/dashboard_service.dart';
 import '../../services/disponibilite_service.dart';
+import '../../core/theme/app_colors.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -58,13 +59,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         setState(() => _isDisponible = true);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Erreur lors du changement de disponibilité')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erreur lors du changement de disponibilité'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
 
-    setState(() => _isTogglingDisponibilite = false);
+    if (mounted) setState(() => _isTogglingDisponibilite = false);
   }
 
   @override
@@ -73,13 +78,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final nomComplet = auth.user?.nomComplet ?? 'Prestataire';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1F3C),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1F3C),
+        backgroundColor: AppColors.background,
         title: const Text(
           'YORMI',
           style: TextStyle(
-            color: Color(0xFFF5A623),
+            color: AppColors.accent,
             fontWeight: FontWeight.bold,
             letterSpacing: 2,
           ),
@@ -87,14 +92,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.history, color: Colors.white),
+            icon: const Icon(Icons.history, color: AppColors.textPrimary),
             onPressed: () => Navigator.pushNamed(context, '/historique'),
           ),
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
+            icon: const Icon(Icons.logout, color: AppColors.textPrimary),
             onPressed: () async {
-              final auth =
-                  Provider.of<AuthProvider>(context, listen: false);
+              final auth = Provider.of<AuthProvider>(context, listen: false);
               await auth.logout();
               if (context.mounted) {
                 Navigator.pushReplacementNamed(context, '/login');
@@ -105,7 +109,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFF5A623)),
+              child: CircularProgressIndicator(color: AppColors.accent),
             )
           : _error != null
               ? Center(
@@ -113,10 +117,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(_error!,
-                          style: const TextStyle(color: Colors.red)),
+                          style: const TextStyle(color: AppColors.error)),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _loadDashboard,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accent,
+                        ),
                         child: const Text('Réessayer'),
                       ),
                     ],
@@ -124,29 +131,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 )
               : RefreshIndicator(
                   onRefresh: _loadDashboard,
+                  color: AppColors.accent,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Header avec nom du prestataire
+                        // Header
                         Row(
                           children: [
                             Container(
                               width: 52,
                               height: 52,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF5A623).withOpacity(0.2),
+                                color: AppColors.accent.withOpacity(0.2),
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: const Color(0xFFF5A623),
+                                  color: AppColors.accent,
                                   width: 2,
                                 ),
                               ),
                               child: const Icon(
                                 Icons.person,
-                                color: Color(0xFFF5A623),
+                                color: AppColors.accent,
                                 size: 28,
                               ),
                             ),
@@ -157,14 +165,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const Text(
                                   'Bonjour 👋',
                                   style: TextStyle(
-                                    color: Colors.white54,
+                                    color: AppColors.textSecondary,
                                     fontSize: 13,
                                   ),
                                 ),
                                 Text(
                                   nomComplet,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -185,16 +193,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _buildStatCard('Revenus ce mois',
                             '${_stats!.revenuesCeMois} FCFA', Icons.attach_money),
                         const SizedBox(height: 16),
-                        _buildStatCard(
-                            'Solde disponible',
+                        _buildStatCard('Solde disponible',
                             '${_stats!.soldeDisponible} FCFA',
                             Icons.account_balance_wallet),
                         const SizedBox(height: 16),
                         _buildStatCard('Note moyenne',
                             '${_stats!.noteMoyenne} ⭐', Icons.star),
                         const SizedBox(height: 16),
-                        _buildStatCard('Nombre d\'avis',
-                            '${_stats!.nbAvis}', Icons.reviews),
+                        _buildStatCard(
+                            'Nombre d\'avis', '${_stats!.nbAvis}', Icons.reviews),
                         const SizedBox(height: 32),
 
                         // Bouton missions
@@ -202,18 +209,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           width: double.infinity,
                           height: 52,
                           child: ElevatedButton.icon(
-                            onPressed: () => Navigator.pushNamed(context, '/missions'),
-                            icon: const Icon(Icons.notifications_active, color: Colors.white),
+                            onPressed: () =>
+                                Navigator.pushNamed(context, '/missions'),
+                            icon: const Icon(Icons.notifications_active,
+                                color: AppColors.textPrimary),
                             label: const Text(
                               'Recevoir des missions',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF5A623),
+                              backgroundColor: AppColors.accent,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -227,12 +236,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: _isDisponible
-                                ? Colors.green.withOpacity(0.2)
-                                : Colors.red.withOpacity(0.2),
+                                ? AppColors.success.withOpacity(0.2)
+                                : AppColors.error.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color:
-                                  _isDisponible ? Colors.green : Colors.red,
+                              color: _isDisponible
+                                  ? AppColors.success
+                                  : AppColors.error,
                               width: 1,
                             ),
                           ),
@@ -243,13 +253,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _isDisponible
-                                        ? 'Disponible'
-                                        : 'Indisponible',
+                                    _isDisponible ? 'Disponible' : 'Indisponible',
                                     style: TextStyle(
                                       color: _isDisponible
-                                          ? Colors.green
-                                          : Colors.red,
+                                          ? AppColors.success
+                                          : AppColors.error,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -259,18 +267,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ? 'Vous recevez des missions'
                                         : 'Vous ne recevez pas de missions',
                                     style: const TextStyle(
-                                        color: Colors.white54, fontSize: 12),
+                                      color: AppColors.textSecondary,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
                               _isTogglingDisponibilite
                                   ? const CircularProgressIndicator(
-                                      color: Color(0xFFF5A623))
+                                      color: AppColors.accent)
                                   : Switch(
                                       value: _isDisponible,
-                                      onChanged: (_) =>
-                                          _toggleDisponibilite(),
-                                      activeColor: const Color(0xFFF5A623),
+                                      onChanged: (_) => _toggleDisponibilite(),
+                                      activeColor: AppColors.accent,
                                     ),
                             ],
                           ),
@@ -286,25 +295,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white10,
+        color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFFF5A623), size: 28),
+          Icon(icon, color: AppColors.accent, size: 28),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style:
-                    const TextStyle(color: Colors.white54, fontSize: 13),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
               ),
               Text(
                 value,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),

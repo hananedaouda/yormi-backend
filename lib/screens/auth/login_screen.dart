@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../core/theme/app_colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,7 +28,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez remplir tous les champs')),
+        const SnackBar(
+          content: Text('Veuillez remplir tous les champs'),
+          backgroundColor: AppColors.error,
+        ),
       );
       return;
     }
@@ -50,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1F3C),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -60,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const Text(
                 'YORMI',
                 style: TextStyle(
-                  color: Color(0xFFF5A623),
+                  color: AppColors.accent,
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 4,
@@ -69,51 +73,51 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 8),
               const Text(
                 'Votre service, à portée de main',
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
               const SizedBox(height: 48),
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: AppColors.textPrimary),
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: const TextStyle(color: Colors.white54),
+                  labelStyle: const TextStyle(color: AppColors.textSecondary),
                   filled: true,
-                  fillColor: Colors.white10,
+                  fillColor: AppColors.cardBackground,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: const Icon(Icons.email, color: Color(0xFFF5A623)),
+                  prefixIcon:
+                      const Icon(Icons.email, color: AppColors.accent),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: AppColors.textPrimary),
                 decoration: InputDecoration(
                   labelText: 'Mot de passe',
-                  labelStyle: const TextStyle(color: Colors.white54),
+                  labelStyle: const TextStyle(color: AppColors.textSecondary),
                   filled: true,
-                  fillColor: Colors.white10,
+                  fillColor: AppColors.cardBackground,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  prefixIcon: const Icon(Icons.lock, color: Color(0xFFF5A623)),
+                  prefixIcon:
+                      const Icon(Icons.lock, color: AppColors.accent),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword
                           ? Icons.visibility_off
                           : Icons.visibility,
-                      color: Colors.white54,
+                      color: AppColors.textSecondary,
                     ),
                     onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
+                      setState(() => _obscurePassword = !_obscurePassword);
                     },
                   ),
                 ),
@@ -126,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Text(
                         auth.errorMessage!,
-                        style: const TextStyle(color: Colors.redAccent),
+                        style: const TextStyle(color: AppColors.error),
                       ),
                     );
                   }
@@ -141,17 +145,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: ElevatedButton(
                       onPressed: auth.isLoading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF5A623),
+                        backgroundColor: AppColors.accent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       child: auth.isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
+                          ? const CircularProgressIndicator(
+                              color: AppColors.textPrimary)
                           : const Text(
                               'Se connecter',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: AppColors.textPrimary,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -166,12 +171,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: RichText(
                   text: const TextSpan(
                     text: 'Pas encore de compte ? ',
-                    style: TextStyle(color: Colors.white54, fontSize: 14),
+                    style:
+                        TextStyle(color: AppColors.textSecondary, fontSize: 14),
                     children: [
                       TextSpan(
                         text: 'Créer un compte',
                         style: TextStyle(
-                          color: Color(0xFFF5A623),
+                          color: AppColors.accent,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

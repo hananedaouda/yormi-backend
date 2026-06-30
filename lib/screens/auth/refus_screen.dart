@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 
 class RefusScreen extends StatelessWidget {
   const RefusScreen({super.key});
@@ -6,7 +7,7 @@ class RefusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1F3C),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -17,12 +18,12 @@ class RefusScreen extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.15),
+                  color: AppColors.error.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.cancel_outlined,
-                  color: Colors.red,
+                  color: AppColors.error,
                   size: 48,
                 ),
               ),
@@ -31,7 +32,7 @@ class RefusScreen extends StatelessWidget {
                 'Demande refusée',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
@@ -41,7 +42,7 @@ class RefusScreen extends StatelessWidget {
                 'Votre demande de validation a été refusée. Veuillez vérifier vos informations et soumettre une nouvelle demande.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: AppColors.textSecondary,
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -50,18 +51,21 @@ class RefusScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.08),
+                  color: AppColors.error.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.withOpacity(0.2)),
+                  border:
+                      Border.all(color: AppColors.error.withOpacity(0.2)),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.red, size: 20),
+                    Icon(Icons.info_outline,
+                        color: AppColors.error, size: 20),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Vous pouvez soumettre une nouvelle demande avec des documents valides.',
-                        style: TextStyle(color: Colors.white54, fontSize: 13),
+                        style: TextStyle(
+                            color: AppColors.textSecondary, fontSize: 13),
                       ),
                     ),
                   ],
@@ -75,8 +79,8 @@ class RefusScreen extends StatelessWidget {
                   onPressed: () =>
                       Navigator.pushReplacementNamed(context, '/verification'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF5A623),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: AppColors.textPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -98,9 +102,9 @@ class RefusScreen extends StatelessWidget {
                   onPressed: () =>
                       Navigator.pushReplacementNamed(context, '/login'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.textPrimary,
                     side: const BorderSide(
-                      color: Color(0xFFF5A623),
+                      color: AppColors.accent,
                       width: 1.5,
                     ),
                     shape: RoundedRectangleBorder(

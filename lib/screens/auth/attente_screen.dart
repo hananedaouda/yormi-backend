@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 
 class AttenteScreen extends StatelessWidget {
   const AttenteScreen({super.key});
@@ -6,7 +7,7 @@ class AttenteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1F3C),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -17,12 +18,12 @@ class AttenteScreen extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5A623).withOpacity(0.15),
+                  color: AppColors.accent.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.hourglass_empty_rounded,
-                  color: Color(0xFFF5A623),
+                  color: AppColors.accent,
                   size: 48,
                 ),
               ),
@@ -31,7 +32,7 @@ class AttenteScreen extends StatelessWidget {
                 'Documents envoyés !',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
@@ -41,7 +42,7 @@ class AttenteScreen extends StatelessWidget {
                 'Votre dossier est en cours d\'examen. L\'équipe YORMI va vérifier vos documents et activer votre compte dans les plus brefs délais.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: AppColors.textSecondary,
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -50,19 +51,21 @@ class AttenteScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.08),
+                  color: AppColors.success.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withOpacity(0.2)),
+                  border:
+                      Border.all(color: AppColors.success.withOpacity(0.2)),
                 ),
                 child: const Row(
                   children: [
                     Icon(Icons.check_circle_outline,
-                        color: Colors.green, size: 20),
+                        color: AppColors.success, size: 20),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Vous recevrez une notification dès que votre compte sera activé.',
-                        style: TextStyle(color: Colors.white54, fontSize: 13),
+                        style: TextStyle(
+                            color: AppColors.textSecondary, fontSize: 13),
                       ),
                     ),
                   ],
@@ -76,9 +79,8 @@ class AttenteScreen extends StatelessWidget {
                   onPressed: () =>
                       Navigator.pushReplacementNamed(context, '/login'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(
-                        color: Color(0xFFF5A623), width: 1.5),
+                    foregroundColor: AppColors.textPrimary,
+                    side: const BorderSide(color: AppColors.accent, width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

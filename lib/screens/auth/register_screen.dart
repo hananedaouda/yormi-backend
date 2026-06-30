@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../core/theme/app_colors.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -129,8 +130,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Color(0xFFF5A623),
-              surface: Color(0xFF1A1F3C),
+              primary: AppColors.accent,
+              surface: AppColors.background,
             ),
           ),
           child: child!,
@@ -190,8 +191,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   InputDecoration _autocompleteDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.white54),
-      prefixIcon: Icon(icon, color: const Color(0xFFF5A623)),
+      labelStyle: const TextStyle(color: AppColors.textSecondary),
+      prefixIcon: Icon(icon, color: AppColors.accent),
       filled: true,
       fillColor: Colors.white.withOpacity(0.07),
       border: OutlineInputBorder(
@@ -200,16 +201,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
+        borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
       ),
-      errorStyle: const TextStyle(color: Colors.redAccent),
+      errorStyle: const TextStyle(color: AppColors.error),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1F3C),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -222,7 +223,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const Text(
                   'Créer un compte',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -230,7 +231,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 8),
                 const Text(
                   'Rejoignez YORMI en tant que prestataire',
-                  style: TextStyle(color: Colors.white54, fontSize: 14),
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 32),
 
@@ -238,13 +242,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.15),
+                      color: AppColors.error.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.withOpacity(0.3)),
+                      border: Border.all(
+                          color: AppColors.error.withOpacity(0.3)),
                     ),
                     child: Text(
                       _errorMessage!,
-                      style: const TextStyle(color: Colors.red, fontSize: 13),
+                      style: const TextStyle(
+                          color: AppColors.error, fontSize: 13),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -280,7 +286,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Row(
                       children: [
                         const Icon(Icons.cake_outlined,
-                            color: Color(0xFFF5A623)),
+                            color: AppColors.accent),
                         const SizedBox(width: 12),
                         Text(
                           _dateNaissance == null
@@ -288,14 +294,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               : _formatDate(_dateNaissance!),
                           style: TextStyle(
                             color: _dateNaissance == null
-                                ? Colors.white54
-                                : Colors.white,
+                                ? AppColors.textSecondary
+                                : AppColors.textPrimary,
                             fontSize: 16,
                           ),
                         ),
                         const Spacer(),
                         const Icon(Icons.calendar_today,
-                            color: Colors.white38, size: 18),
+                            color: AppColors.textMuted, size: 18),
                       ],
                     ),
                   ),
@@ -335,7 +341,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onSelected: (String selection) {
                     _metierController.text = selection;
                   },
-                  fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
+                  fieldViewBuilder:
+                      (context, controller, focusNode, onSubmitted) {
                     controller.text = _metierController.text;
                     controller.addListener(() {
                       _metierController.text = controller.text;
@@ -343,7 +350,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return TextFormField(
                       controller: controller,
                       focusNode: focusNode,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppColors.textPrimary),
                       validator: (v) =>
                           v == null || v.isEmpty ? 'Champ requis' : null,
                       decoration: _autocompleteDecoration(
@@ -354,11 +361,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return Align(
                       alignment: Alignment.topLeft,
                       child: Material(
-                        color: const Color(0xFF252B4B),
+                        color: AppColors.surface,
                         borderRadius: BorderRadius.circular(12),
                         elevation: 4,
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 200),
+                          constraints:
+                              const BoxConstraints(maxHeight: 200),
                           child: ListView.builder(
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
@@ -369,11 +377,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 title: Text(
                                   option,
                                   style: const TextStyle(
-                                      color: Colors.white, fontSize: 14),
+                                      color: AppColors.textPrimary,
+                                      fontSize: 14),
                                 ),
                                 onTap: () => onSelected(option),
                                 hoverColor:
-                                    const Color(0xFFF5A623).withOpacity(0.1),
+                                    AppColors.accent.withOpacity(0.1),
                               );
                             },
                           ),
@@ -395,7 +404,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onSelected: (String selection) {
                     _villeController.text = selection;
                   },
-                  fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
+                  fieldViewBuilder:
+                      (context, controller, focusNode, onSubmitted) {
                     controller.text = _villeController.text;
                     controller.addListener(() {
                       _villeController.text = controller.text;
@@ -403,7 +413,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return TextFormField(
                       controller: controller,
                       focusNode: focusNode,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppColors.textPrimary),
                       validator: (v) =>
                           v == null || v.isEmpty ? 'Champ requis' : null,
                       decoration: _autocompleteDecoration(
@@ -414,11 +424,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return Align(
                       alignment: Alignment.topLeft,
                       child: Material(
-                        color: const Color(0xFF252B4B),
+                        color: AppColors.surface,
                         borderRadius: BorderRadius.circular(12),
                         elevation: 4,
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 200),
+                          constraints:
+                              const BoxConstraints(maxHeight: 200),
                           child: ListView.builder(
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
@@ -429,11 +440,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 title: Text(
                                   option,
                                   style: const TextStyle(
-                                      color: Colors.white, fontSize: 14),
+                                      color: AppColors.textPrimary,
+                                      fontSize: 14),
                                 ),
                                 onTap: () => onSelected(option),
                                 hoverColor:
-                                    const Color(0xFFF5A623).withOpacity(0.1),
+                                    AppColors.accent.withOpacity(0.1),
                               );
                             },
                           ),
@@ -453,8 +465,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _register,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF5A623),
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: AppColors.textPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -464,7 +476,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               strokeWidth: 2,
                             ),
                           )
@@ -486,12 +498,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: RichText(
                       text: const TextSpan(
                         text: 'Vous avez déjà un compte ? ',
-                        style: TextStyle(color: Colors.white54, fontSize: 14),
+                        style: TextStyle(
+                            color: AppColors.textSecondary, fontSize: 14),
                         children: [
                           TextSpan(
                             text: 'Connectez-vous',
                             style: TextStyle(
-                              color: Color(0xFFF5A623),
+                              color: AppColors.accent,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -520,14 +533,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(color: AppColors.textPrimary),
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.white24),
-        labelStyle: const TextStyle(color: Colors.white54),
-        prefixIcon: Icon(icon, color: const Color(0xFFF5A623)),
+        hintStyle: const TextStyle(color: AppColors.textMuted),
+        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        prefixIcon: Icon(icon, color: AppColors.accent),
         filled: true,
         fillColor: Colors.white.withOpacity(0.07),
         border: OutlineInputBorder(
@@ -536,9 +549,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
         ),
-        errorStyle: const TextStyle(color: Colors.redAccent),
+        errorStyle: const TextStyle(color: AppColors.error),
       ),
     );
   }
@@ -547,7 +560,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(color: AppColors.textPrimary),
       validator: (v) {
         if (v == null || v.isEmpty) return 'Champ requis';
         if (v.length < 8) return 'Minimum 8 caractères';
@@ -555,12 +568,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       },
       decoration: InputDecoration(
         labelText: 'Mot de passe',
-        labelStyle: const TextStyle(color: Colors.white54),
-        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFF5A623)),
+        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        prefixIcon:
+            const Icon(Icons.lock_outline, color: AppColors.accent),
         suffixIcon: IconButton(
           icon: Icon(
             _obscurePassword ? Icons.visibility_off : Icons.visibility,
-            color: Colors.white38,
+            color: AppColors.textMuted,
           ),
           onPressed: () =>
               setState(() => _obscurePassword = !_obscurePassword),
@@ -573,9 +587,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
         ),
-        errorStyle: const TextStyle(color: Colors.redAccent),
+        errorStyle: const TextStyle(color: AppColors.error),
       ),
     );
   }
