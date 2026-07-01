@@ -62,9 +62,64 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  bool _contientInfoInterdit(String texte) {
+    final texteMin = texte.toLowerCase();
+
+    // Format +229XXXXXXXXXXX (international béninois)
+    final regexInternational = RegExp(r'\+229\d{8,13}');
+
+    // Format 01XXXXXXXXX (long local, 11+ chiffres)
+    final regexLong = RegExp(r'\b0\d{10,}\b');
+
+    // Format 97XXXXXX ou 96XXXXXX (8 chiffres, commence par 9 ou 6)
+    final regexCourt = RegExp(r'\b[96]\d{7}\b');
+
+    // Email
+    final regexEmail = RegExp(
+        r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}');
+
+    // Mots clés interdits
+    final motsInterdits = [
+      'whatsapp',
+      'telegram',
+      'appelle-moi',
+      'appelle moi',
+      'contacte-moi',
+      'contacte moi',
+      'mon numéro',
+      'mon numero',
+      'hors application',
+      'hors app',
+    ];
+
+    if (regexInternational.hasMatch(texte)) return true;
+    if (regexLong.hasMatch(texte)) return true;
+    if (regexCourt.hasMatch(texte)) return true;
+    if (regexEmail.hasMatch(texte)) return true;
+    for (final mot in motsInterdits) {
+      if (texteMin.contains(mot)) return true;
+    }
+
+    return false;
+  }
+
   Future<void> _envoyerMessage() async {
     final contenu = _messageController.text.trim();
     if (contenu.isEmpty) return;
+
+    // Filtre NLP anti-contournement
+    if (_contientInfoInterdit(contenu)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Message bloqué. Les coordonnées personnelles sont interdites dans le chat YORMI.',
+          ),
+          backgroundColor: AppColors.error,
+          duration: Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
 
     _messageController.clear();
     setState(() => _isSending = true);
@@ -157,8 +212,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(_error!,
-                                style:
-                                    const TextStyle(color: AppColors.error)),
+                                style: const TextStyle(
+                                    color: AppColors.error)),
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: _loadMessages,
@@ -303,8 +358,8 @@ class _ChatScreenState extends State<ChatScreen> {
               onSubmitted: (_) => _envoyerMessage(),
               decoration: InputDecoration(
                 hintText: 'Écrire un message...',
-                hintStyle:
-                    const TextStyle(color: AppColors.textMuted, fontSize: 14),
+                hintStyle: const TextStyle(
+                    color: AppColors.textMuted, fontSize: 14),
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.06),
                 contentPadding: const EdgeInsets.symmetric(
@@ -322,7 +377,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               width: 44,
               height: 44,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.accent,
                 shape: BoxShape.circle,
               ),
