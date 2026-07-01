@@ -217,6 +217,37 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+
+            // Bouton Chat
+            SizedBox(
+              width: double.infinity,
+              height: 46,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/chat',
+                    arguments: {
+                      'missionId': widget.missionId,
+                      'clientNom': widget.clientNom,
+                    },
+                  );
+                },
+                icon: const Icon(Icons.chat_bubble_outline,
+                    color: AppColors.accent, size: 20),
+                label: const Text(
+                  'Contacter le client',
+                  style: TextStyle(color: AppColors.accent, fontSize: 14),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.accent),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 24),
 
             // Étapes visuelles
@@ -260,7 +291,8 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                 height: 56,
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : _demarrerMission,
-                  icon: const Icon(Icons.play_arrow, color: AppColors.textPrimary),
+                  icon: const Icon(Icons.play_arrow,
+                      color: AppColors.textPrimary),
                   label: _isLoading
                       ? const SizedBox(
                           height: 20,
@@ -293,7 +325,8 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                 height: 56,
                 child: ElevatedButton.icon(
                   onPressed: _isLoading ? null : _terminerMission,
-                  icon: const Icon(Icons.check_circle, color: AppColors.textPrimary),
+                  icon: const Icon(Icons.check_circle,
+                      color: AppColors.textPrimary),
                   label: _isLoading
                       ? const SizedBox(
                           height: 20,
@@ -327,16 +360,19 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.success.withOpacity(0.3)),
+                  border:
+                      Border.all(color: AppColors.success.withOpacity(0.3)),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.hourglass_empty, color: AppColors.success, size: 24),
+                    Icon(Icons.hourglass_empty,
+                        color: AppColors.success, size: 24),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'En attente de validation et paiement du client.',
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                        style:
+                            TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                     ),
                   ],
@@ -391,7 +427,8 @@ class _MissionEnCoursScreenState extends State<MissionEnCoursScreen> {
             ),
             child: Center(
               child: fait
-                  ? const Icon(Icons.check, color: AppColors.textPrimary, size: 16)
+                  ? const Icon(Icons.check,
+                      color: AppColors.textPrimary, size: 16)
                   : Text(
                       '$numero',
                       style: const TextStyle(

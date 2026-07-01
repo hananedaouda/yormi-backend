@@ -1,8 +1,7 @@
-import 'screens/mission/mission_en_cours_screen.dart';
-import 'screens/mission/mission_reception_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/theme/app_colors.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
@@ -11,6 +10,9 @@ import 'screens/auth/attente_screen.dart';
 import 'screens/auth/refus_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/historique/historique_screen.dart';
+import 'screens/mission/mission_reception_screen.dart';
+import 'screens/mission/mission_en_cours_screen.dart';
+import 'screens/chat/chat_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,7 +34,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFF5A623),
+            seedColor: AppColors.accent,
           ),
           useMaterial3: true,
         ),
@@ -59,6 +61,17 @@ class MyApp extends StatelessWidget {
               ),
             );
           }
+
+          if (settings.name == '/chat') {
+            final args = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                missionId: args['missionId'],
+                clientNom: args['clientNom'],
+              ),
+            );
+          }
+
           return null;
         },
       ),
@@ -78,7 +91,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
   void initState() {
     super.initState();
     Future.microtask(
-      () => Provider.of<AuthProvider>(context, listen: false).checkAuthStatus(),
+      () =>
+          Provider.of<AuthProvider>(context, listen: false).checkAuthStatus(),
     );
   }
 
@@ -86,24 +100,19 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, auth, child) {
-        // Chargement en cours
         if (auth.isCheckingAuth) {
           return const Scaffold(
-            backgroundColor: Color(0xFF1A1F3C),
+            backgroundColor: AppColors.background,
             body: Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFFF5A623),
-              ),
+              child: CircularProgressIndicator(color: AppColors.accent),
             ),
           );
         }
 
-        // Pas connecté
         if (!auth.isAuthenticated) {
           return const LoginScreen();
         }
 
-        // Connecté — on redirige selon le statut
         switch (auth.statutVerification) {
           case 'verifie':
             return const DashboardScreen();
